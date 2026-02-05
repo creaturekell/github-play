@@ -41,11 +41,13 @@ Design decisions and tradeoffs are documented in `/docs/decisions`.
 
 ### Core Components
 
-1. Hello World App - A simple containerized Python application used as the preview workload.
-2. Preview GitHub App Service  - A GitHub App that listens to webhook events and responds to `/preview` commands on pull requests.
-3. Deployment Orchestrator - Responsible for provisioning preview environments in GKE and generating preview URLs.
-4. Cleanup Service - HPeriodically scans for expired or orphaned preview environments and removes them.
-5. State Store -  Tracks preview deployments, ownership, timestamps, and lifecycle state.
+| Service                                              | Description 
+| ---------------------------------------------------- | ------------- |
+| helloworld |  A simple containerized Python application used as the preview workload. |
+| github-app | A GitHub App that listens to webhook events and responds to `/preview` commands on pull requests. |
+| deployer | A Deployment Orchestrator - Responsible for provisioning preview environments in GKE and generating preview URLs. |
+| cleanup | Periodically scans for expired or orphaned preview environments and removes them. |
+| statestore | Tracks preview deployments, ownership, timestamps, and lifecycle state. |
 
 ---
 
