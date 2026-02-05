@@ -1,11 +1,14 @@
 import os
 import logging
+import hmac
+import hashlib
 from datetime import datetime
 from dotenv import load_dotenv
 from typing import Optional
 import json
 
 from fastapi import FastAPI, Request, HTTPException, Header, status
+from fastapi.responses import JSONResponse
 import jwt
 
 
@@ -25,22 +28,33 @@ if not all([GITHUB_APP_ID, GITHUB_APP_PRIVATE_KEY, GITHUB_WEBHOOK_SECRET]):
     logger.warning("Missing required environment variables. Some features may not work.")
 
 
-def verify_signature(payload_body, secret_token, signature_header):
+def verify_signature(payload_body, secret_token, signature):
     """Verify that the payload was sent from GitHub by validating SHA256.
     
-    Reference docs: https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
-
-    Raise and return 403 if not authorized.
+    Derived from reference docs: https://docs.github.com/en/webhooks/using-webhooks/validating-webhook-deliveries
 
     Args:
         payload_body: original request body to verify (request.body())
         secret_token: GitHub app webhook token (WEBHOOK_SECRET)
-        signature_header: header received from GitHub (x-hub-signature-256)
+        signature: header received from GitHub (x-hub-signature-256)
+
+    Returns:
+        True if signature is valid, False otherwise
     """
     
+    if not signature:
+        return False
 
-    # copy implementation from reference docs above later
-    pass
+    if not signature.startswith("sha256="):
+        return False
+
+    hash_object = hmac.new(secret_token.encode('utf-8'), msg=payload_body, digestmod=hashlib.sha256)
+    expected_signature = "sha256=" + hash_object.hexdigest()
+
+    return hmac.compare_digest(expected_signature, signature)
+   
+
+    
 
 def generate_jwt_token() -> str:
     """
@@ -92,10 +106,13 @@ def extract_command(comment_body: str) -> Optional[dict]:
 @app.post("/webhook")
 async def github_webhook(
     request: Request,
-    github_event: str = Header(None), 
-    x_hub_signature_256: str = Header(None)):
+    x_github_event: str = Header(None, alias="X-GitHub-Event"), 
+    x_hub_signature_256: str = Header(None, alias="X-Hub-Signature-256")):
     body_bytes = await request.body()
-    if not verify_webhook_signature(body_bytes, x_hub_signature_256):
+    
+    # Verify signature first
+    if not verify_signature(body_bytes, GITHUB_WEBHOOK_SECRET, x_hub_signature_256):
+        logger.warning("Webhook signature verification failed")
         raise HTTPException(status_code=401, detail="Invalid signature")
 
     try:
@@ -106,13 +123,13 @@ async def github_webhook(
             detail="Invalid JSON payload"
         )    
     
-    logger.info(f"Received GitHub event: {github_event}")
+    logger.info(f"Received GitHub event: {x_github_event}")
 
-    if github_event != "issue_comment":
-        logger.debug(f"Ignoring event type:{github_event}")
+    if x_github_event != "issue_comment":
+        logger.debug(f"Ignoring event type: {x_github_event}")
         return JSONResponse(
             status_code=200,
-            content={"message": f"Event type {github_event} ignored"}
+            content={"message": f"Event type {x_github_event} ignored"}
         )
 
     # Extract event data
@@ -175,6 +192,7 @@ async def github_webhook(
 @app.get("/")
 async def root():
     return {"status": "healthy"}
+
 
 @app.get("/health")
 async def health():
