@@ -69,6 +69,7 @@ sequenceDiagram
     Engineer->>GitHub: Comments "/preview" on PR
     GitHub->>GitHubApp: Webhook (issue_comment event)
     GitHubApp->>GitHubApp: Validate /preview command
+    GitHubApp->>GitHub: PR Comment "Deployment requested! Setting up preview environment..."
     GitHubApp->>DB: Create deployment record
     GitHubApp->>Deployer: Queue deployment request
     Deployer->>GKE: Create namespace, deployment, service
