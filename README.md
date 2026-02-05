@@ -32,6 +32,8 @@ Before deploying to production, engineers benefit from seeing their changes live
 
 4. **Failure & Orphan Handling**  
    Partial or failed deployments may leave orphaned resources; these must be detected and cleaned up safely.
+5. **Security**
+   Prevent access to folks external to the company.  
 
 ---
 
