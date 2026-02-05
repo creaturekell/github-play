@@ -102,5 +102,6 @@ Additional details are captured in `/docs/decisions/01-github-app.md`.
 ## Status
 
 - Architecture and core flow defined
+- Python helloworld app created for the simulated app to deploy
 - GitHub App webhook handling in progress
 - Deployment orchestration under active development
