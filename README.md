@@ -24,6 +24,7 @@ See /docs/descisions for design descisions
 
 ## Flow 
 
+```mermaid 
 sequenceDiagram
     participant Engineer
     participant GitHub
@@ -47,3 +48,5 @@ sequenceDiagram
     Cleanup->>DB: Query deployments > 30min old
     Cleanup->>GKE: Delete namespace + resources
     Cleanup->>DB: Mark deployment as cleaned
+
+    ```
