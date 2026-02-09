@@ -1,0 +1,137 @@
+# Default values for Preview Environment chart
+# This is a YAML-formatted file.
+# Declare variables to be passed into your templates.
+
+# Number of replicas
+replicaCount: 1
+
+# Image configuration
+image:
+  repository: helloworld  # Update with your container registry path
+  pullPolicy: IfNotPresent
+  tag: "latest"
+
+# Image pull secrets (if using private registry)
+imagePullSecrets: []
+
+# Name override (optional)
+nameOverride: ""
+fullnameOverride: ""
+
+# Service account configuration
+serviceAccount:
+  create: true
+  annotations: {}
+  name: ""
+  automount: true
+
+# Pod security context
+podSecurityContext: {}
+  # fsGroup: 2000
+
+# Container security context
+securityContext: {}
+  # capabilities:
+  #   drop:
+  #   - ALL
+  # readOnlyRootFilesystem: true
+  # runAsNonRoot: true
+  # runAsUser: 1000
+
+# Service configuration
+service:
+  type: ClusterIP
+  port: 8080
+
+# Ingress configuration
+ingress:
+  enabled: true
+  className: "gce"  # Use "gce" for GKE, "nginx" for NGINX Ingress
+  annotations:
+    # For GKE (Google Cloud Load Balancer):
+    kubernetes.io/ingress.class: "gce"
+    kubernetes.io/ingress.global-static-ip-name: ""  # Optional: specify static IP name
+    networking.gke.io/managed-certificates: ""  # Optional: specify managed cert name
+    # For NGINX Ingress:
+    # kubernetes.io/ingress.class: "nginx"
+    # cert-manager.io/cluster-issuer: "letsencrypt-prod"
+  hosts:
+    - host: pre.chaoticbee.com  # Update with your domain or use wildcard DNS
+      paths:
+        - path: /
+          pathType: Prefix
+  tls: []
+    # - secretName: preview-tls
+    #   hosts:
+    #     - preview.example.com
+
+# Resource limits and requests
+resources:
+  limits:
+    cpu: 500m
+    memory: 256Mi
+  requests:
+    cpu: 100m
+    memory: 128Mi
+
+# Liveness and readiness probes
+livenessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 30
+  periodSeconds: 10
+  timeoutSeconds: 5
+  failureThreshold: 3
+
+readinessProbe:
+  httpGet:
+    path: /
+    port: http
+  initialDelaySeconds: 5
+  periodSeconds: 5
+  timeoutSeconds: 3
+  failureThreshold: 3
+
+# Pod annotations
+podAnnotations: {}
+
+# Pod labels
+podLabels: {}
+
+# Volume mounts
+volumeMounts: []
+
+# Volumes
+volumes: []
+
+# Node selector
+nodeSelector: {}
+
+# Affinity rules
+affinity: {}
+
+# Tolerations
+tolerations: []
+
+# Autoscaling configuration
+autoscaling:
+  enabled: false
+  minReplicas: 1
+  maxReplicas: 3
+  targetCPUUtilizationPercentage: 80
+  targetMemoryUtilizationPercentage: 80
+
+# Environment variables
+env: []
+  # - name: PR_NUMBER
+  #   value: "123"
+  # - name: COMMIT_SHA
+  #   value: "abc123"
+
+# HTTPRoute (for Gateway API - alternative to Ingress)
+httpRoute:
+  enabled: false
+  parentRefs: []
+  hostnames: []
+  rules: []
