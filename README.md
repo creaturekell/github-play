@@ -95,10 +95,6 @@ Will eventually add screenshots or video here.
 1. [Setup](/src/setupgke/README.md) preview Google Cloud Kubernetes Cluster 
 
 
----
-## Why a GitHub App?
-
-Details are captured in [`/docs/decisions/01-github-app.md`](/docs/decisions/01-github-app.md).
 
 ---
 
@@ -109,9 +105,6 @@ Details are captured in [`/docs/decisions/01-github-app.md`](/docs/decisions/01-
 - Python helloworld app created for the simulated app to deploy
 - GitHub App webhook handling to process /preview and post a comment in the PR that "Deployment requested! Setting up preview environment..."
 - Refactor and modularize githubapp 
-
-### Wip:
-
 - Setup initial GKE preview environment and manually perform deploy steps of helloworld 
     - Build Docker Image(s)
     - Publish Docker Image to container registry
@@ -119,10 +112,16 @@ Details are captured in [`/docs/decisions/01-github-app.md`](/docs/decisions/01-
     - Deploy helm chart
     - Get preview URL
 
+### Wip:
+
+manually steps work, now automate with deployer 
+
 ### Next: 
 
 
-7.  ok, manually steps work, now automate...
+7. store deployer state and create a dashboard of preview status
+8. create clean-up service 
+
 
 
 
