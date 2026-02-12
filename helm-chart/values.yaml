@@ -51,7 +51,7 @@ ingress:
   # Add GKE/NGINX annotations in your values file as needed.
   annotations: {}
   hosts:
-    - host: pre.chaoticbee.com  # Update with your domain or use wildcard DNS
+    - host: <your-hostname>  # Update with your domain or use wildcard DNS
       paths:
         - path: /
           pathType: Prefix

@@ -27,7 +27,7 @@ ingress:
   className: "nginx"  # Use nginx ingress class so nginx picks up this ingress
   annotations: {}
   hosts:
-    - host: <your preview hostname>  # Update with preview hostname (e.g.preview-pr-123.pre.chaoticbee.com)
+    - host: <your-preview-hostname>  # Update with preview hostname <e.g. preview-pr-123.pre.chaoticbee.com
       paths:
         - path: /
           pathType: Prefix
