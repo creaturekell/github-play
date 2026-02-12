@@ -41,6 +41,55 @@ Before deploying to production, engineers benefit from seeing their changes live
 
 Design decisions and tradeoffs are documented in `/docs/decisions`.
 
+```mermaid
+flowchart TB
+    subgraph External["External"]
+        Engineer
+        GitHub["GitHub (PR Comments)"]
+        DNS["DNS *.yourhostname"]
+    end
+
+    subgraph Services["Preview Deploy Services"]
+        GitHubApp["GitHub App<br/>Webhook Handler"]
+        Deployer["Deployer<br/>Helm + K8s API"]
+    end
+
+    subgraph GKE["GKE Cluster"]
+        subgraph ingress["ingress-nginx namespace"]
+            NGINX["NGINX Ingress Controller<br/>LoadBalancer (single IP)"]
+        end
+
+        subgraph preview1["preview-pr-123 namespace"]
+            Svc1["Service"]
+            Pod1["helloworld Pod"]
+        end
+
+        subgraph preview2["preview-pr-456 namespace"]
+            Svc2["Service"]
+            Pod2["helloworld Pod"]
+        end
+    end
+
+    subgraph Future["Planned"]
+        Cleanup["Cleanup Service"]
+        Statestore["State Store"]
+        Dashboard["Dashboard"]
+    end
+
+    Engineer -->|"/preview" added to PR comment| GitHub
+    GitHub -->|Webhook| GitHubApp
+    GitHubApp -->|Helm install| Deployer
+    Deployer -->|Create namespace, Deployment, Service, Ingress| GKE
+    NGINX -->|route by host| Svc1
+    NGINX -->|route by host| Svc2
+    Svc1 --> Pod1
+    Svc2 --> Pod2
+    DNS -->|A record| NGINX
+    Engineer -->|http://preview-pr-123.yourhostname| DNS
+    Cleanup -.->|"periodic scan"| GKE
+    Deployer -.->|"deployment state"| Statestore
+    Statestore -.->|"status"| Dashboard
+```
 
 ### Core Components
 
@@ -115,7 +164,7 @@ Will eventually add screenshots or video here.
 
 ### Wip:
 
-manually steps work, now automate with deployer 
+manual steps work, now automate with deployer 
 
 ### Next: 
 
@@ -128,7 +177,6 @@ manually steps work, now automate with deployer
 
 # Potential ideas.
 
-- rate limiting and communication back to the developer on when their preview will be deployed
 - observability
 - service mesh
 - fluxCD or ConfigSync 
